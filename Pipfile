@@ -1,0 +1,30 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+streamlit = "*"
+spacy = "*"
+st-annotated-text = "*"
+spacy-pkuseg = "<0.1.0,>=0.0.27"
+docx2txt = "*"
+pypdf2 = "*"
+matplotlib = "*"
+matplotlib-venn = "*"
+python-dateutil = "*"
+seaborn = "*"
+openai = "*"
+scikit-learn = "*"
+plotly = "*"
+beautifulsoup4 = "*"
+iso3166 = "*"
+requests-html = "*"
+selenium = "*"
+
+[dev-packages]
+black = "*"
+ipykernel = "*"
+
+[requires]
+python_version = "3.9"
