@@ -19,7 +19,7 @@ jobs:
           python-version: '3.9'
           cache: 'pipenv'
       - name: Install Dependencies
-        run: pipenv install --dev
+        run: pipenv install
       - name: Run Script
         env:
           MONGO_URI: ${{ secrets.MONGODB_CONNECTION_URI }}
