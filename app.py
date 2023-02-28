@@ -451,6 +451,7 @@ if ft == "Generate Cover Letter":
         st.markdown(f'<p class="span">Please Reduce Your Input Size. <br> Current Input Size:  {len(doc)+len(doc_JD)} tokens. <br>  Maximun Input Size: 1700 tokens.</p>', unsafe_allow_html=True)
     else:
         new_prompt = 'Write a cover letter based on below resume and the job posting: Resume: ' + doc.text.replace('\n',"").replace('\t',"") + ' Job Posting: ' + doc_JD.text.replace('\n',"").replace('\t',"") + '\n'
+        openai.api_key = st.secrets["OPENAI_API_KEY"]
         answer = openai.Completion.create(
         model='text-davinci-002',
         prompt = new_prompt,
