@@ -18,7 +18,8 @@ import io
 import openai
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
-
+import job_scraper as js
+from pymongo import MongoClient
 
 
 @st.cache_resource(show_spinner=False)
@@ -28,9 +29,20 @@ def load_models():
     models = {"en": english_model, "zh": chinese_model}
     return models
 
-def clean_text(text):
-    pass
+@st.cache_resource(show_spinner=False)
+def init_connection():
+    user = st.secrets["db_username"]
+    password = st.secrets["db_pswd"]
+    cluster_name = st.secrets["cluster_name"]
+    uri = f'mongodb+srv://{user}:{password}@{cluster_name}.ebvevig.mongodb.net/?retryWrites=true&w=majority'
+    return MongoClient(uri)
 
+@st.cache_data(ttl=1200)
+def get_data():
+    db = client.ResumeAI_DB
+    items = db.Indeed_jobs.find()
+    items = list(items)  # make hashable for st.cache_data
+    return pd.DataFrame(items)
 
 def process_text(doc):
     tokens = []
@@ -228,7 +240,7 @@ st.write(
     unsafe_allow_html=True,
 )
 # Render Streamlit page
-image = Image.open('logo.png')
+image = Image.open('./static/logo.png')
 st.image(image)
 st.markdown(
     "*This application employs a Spacy model to analyze a CV and generates a cover letter based on the CV and job description, using a fine-tuned [Davinci model](https://beta.openai.com/docs/models/overview) based on OpenAI's GPT-3. Furthermore, it leverages web scraping and a matching algorithm to suggest suitable job positions that align with the individual's CV.*"
@@ -238,11 +250,13 @@ st.markdown(
 models = load_models()
 with st.sidebar:
     st.header("The Navigation Pane")
-    selected_language = st.sidebar.selectbox("Select a language", options=["en", "zh"])
+    selected_language = st.sidebar.selectbox("Select a language", options=["en"])
     # widget to choose which continent to display
-    ft_list = ["Analyse CV", "Assess Qualification", "Generate Cover Letter", "Recommend Jobs"]
+    ft_list = ["Analyse CV", "Assess Qualification", "Generate Cover Letter", "Recommend DS Jobs(fast)","Recommend Jobs(slow)"]
     ft = st.selectbox(label = "Choose a function", options = ft_list)
-    if ft=='Recommend Jobs':
+    if ft=='Recommend DS Jobs(fast)':
+        country = st.selectbox('Country', options=['Singapore','Hong Kong','United States of America'])
+    if ft=='Recommend Jobs(slow)':
         st.subheader("Filter Conditions")
         country = st.text_input('Country*', 'Singapore')
         city = st.text_input('City', '')
@@ -283,26 +297,34 @@ doc_JD =  selected_model(text_JD)
 if ft=="Analyse CV":
     count,tokens = process_text(doc)
     if count == 0 and len(tokens)>0:
-        st.markdown("**Good Job! \n Your resume is following the STAR principle**")
+        with open('./static/cong.css') as f:
+            st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
+        st.markdown('<p class="span">Good job! Your resume is following the STAR principle.</p>',unsafe_allow_html=True)
     elif count > 0:
         st.subheader("Note:")
         st.markdown(f"**There are {count} sentence(s) need to be refined.**")
     else:
-        st.markdown("**Please Input or upload a CV.**")
+        with open('./static/notification.css') as f:
+            st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
+        st.markdown('<p class="span">Please type or upload a CV.</p>',unsafe_allow_html=True)
     with st.expander("See Highlighs in Resume"):
         annotated_text(*tokens)
 
 
 if ft=="Assess Qualification":
     if len(doc)==0:
-        st.markdown("**Please Input or upload a CV.**")
+        with open('./static/notification.css') as f:
+            st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
+        st.markdown('<p class="span">Please type or upload a CV.</p>',unsafe_allow_html=True)
     elif len(doc_JD)==0:
-        st.markdown("**Please Input a Job Posting.**")
+        with open('./static/notification.css') as f:
+            st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
+        st.markdown('<p class="span">Please input a Job Posting.</p>',unsafe_allow_html=True)
     else:
         nlp = selected_model
         # Add entity ruler to pipe
         if "entity_ruler" not in nlp.pipe_names:
-            skill_path = "qualifications.jsonl"
+            skill_path = ".models/qualifications.jsonl"
             ruler = nlp.add_pipe("entity_ruler",  config={"overwrite_ents": True})
             ruler.from_disk(skill_path)
 
@@ -357,9 +379,8 @@ if ft=="Assess Qualification":
         else:
             color = 'orange'
 
-        st.markdown(""" <style> .font {
-                        font-size:40px ; text-align: center; font-weight: bold; color: #33B2FF;} 
-                        </style> """, unsafe_allow_html=True)
+        with open('./static/title.css') as tt:
+            st.markdown(f'<style>{tt.read()}</style>', unsafe_allow_html=True)
         st.markdown('<p class="font">Comparing Qualifications</p>', unsafe_allow_html=True)
         st.subheader("**Summary**")
         st.markdown(f"You have skills in **{str(skills)[1:-1]}** based on your resume")
@@ -417,17 +438,20 @@ if ft=="Assess Qualification":
 
 if ft == "Generate Cover Letter":
     if len(doc)==0:
-        st.markdown("**Please Input or upload a CV.**")
+        with open('./static/notification.css') as f:
+            st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
+        st.markdown('<p class="span">Please type or upload a CV.</p>',unsafe_allow_html=True)
     elif len(doc_JD)==0:
-        st.markdown("**Please Input a Job Posting.**")
+        with open('./static/notification.css') as f:
+            st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
+        st.markdown('<p class="span">Please input a Job Posting.</p>',unsafe_allow_html=True)
     elif len(doc)+len(doc_JD)>1700:
-        st.markdown("**Please Reduce Your Input Size.**")
-        st.markdown(f"**Current Input Size:  {len(doc)+len(doc_JD)} tokens.**")
-        st.markdown("**Maximun Input Size: 1700 tokens.**")
+        with open('./static/style.css') as f:
+            st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
+        st.markdown(f'<p class="span">Please Reduce Your Input Size. <br> Current Input Size:  {len(doc)+len(doc_JD)} tokens. <br>  Maximun Input Size: 1700 tokens.</p>', unsafe_allow_html=True)
     else:
         new_prompt = 'Write a cover letter based on below resume and the job posting: Resume: ' + doc.text.replace('\n',"").replace('\t',"") + ' Job Posting: ' + doc_JD.text.replace('\n',"").replace('\t',"") + '\n'
         answer = openai.Completion.create(
-        #model='davinci:ft-personal:cl-model-2023-02-02-13-09-09',
         model='text-davinci-002',
         prompt = new_prompt,
         max_tokens=250,
@@ -467,12 +491,47 @@ def score(text_input, skills, d1, text_JD ):
     match_score = skill_score + edu_score + sim_score
     return match_score
 
-if ft == "Recommend Jobs" and bt:
+if ft == "Recommend DS Jobs(fast)":
     if doc:
         nlp = selected_model
         # Add entity ruler to pipe
         if "entity_ruler" not in nlp.pipe_names:
-            skill_path = "qualifications.jsonl"
+            skill_path = ".models/qualifications.jsonl"
+            ruler = nlp.add_pipe("entity_ruler",  config={"overwrite_ents": True})
+            ruler.from_disk(skill_path)
+        # Extract skills from CV 
+        doc = nlp(text_input)
+        skills, tokens = extract_qualif(doc)
+        # Extract education level
+        edu_cv = extract_qualif.edu
+        # Extract YOE
+        res, res_token = parse_time(doc, tokens)
+        doc1 = nlp(res)
+        y1 = YoE(doc1,skills,0)
+        d1 = pd.DataFrame(y1.items(), columns=['Skills','Your YoE'])
+        # Get data from MongoDB
+        client = init_connection()
+        df = get_data()
+        df = df[df['country']==country].drop_duplicates()
+        df['match_score'] = df.apply(lambda x: score(text_input, skills, d1, x['description']), axis=1)
+        df = df[['title','company','location','description','link','country','s_date','match_score']].reset_index()
+        st.subheader("**Full list**")
+        st.dataframe(df)
+        st.subheader("**Recommendation list**")
+        st.dataframe(df[df['match_score']>50])
+    else:
+        with open('./static/notification.css') as f:
+            st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
+        st.markdown('<p class="span">Please type or upload a CV.</p>',unsafe_allow_html=True)
+
+
+
+if ft == "Recommend Jobs(slow)" and bt:
+    if doc:
+        nlp = selected_model
+        # Add entity ruler to pipe
+        if "entity_ruler" not in nlp.pipe_names:
+            skill_path = ".models/qualifications.jsonl"
             ruler = nlp.add_pipe("entity_ruler",  config={"overwrite_ents": True})
             ruler.from_disk(skill_path)
         # Extract skills from CV 
@@ -486,7 +545,6 @@ if ft == "Recommend Jobs" and bt:
         y1 = YoE(doc1,skills,0)
         d1 = pd.DataFrame(y1.items(), columns=['Skills','Your YoE'])
 
-        import job_scraper as js
         df = js.search_indeed(job_title = title, country = country, num_pages = pages)
         df['match_score'] = df.apply(lambda x: score(text_input, skills, d1, x['description']), 
                         axis=1)
@@ -496,7 +554,9 @@ if ft == "Recommend Jobs" and bt:
         st.subheader("**Recommendation list**")
         st.dataframe(df[df['match_score']>50])
     else:
-        st.markdown("**Please Input or upload a CV.**")
+        with open('./static/notification.css') as f:
+            st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
+        st.markdown('<p class="span">Please type or upload a CV.</p>',unsafe_allow_html=True)
 
 
 

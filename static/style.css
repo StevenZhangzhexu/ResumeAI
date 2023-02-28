@@ -1,0 +1,8 @@
+.span {
+    text-align: center;
+    font-weight: bold;
+    background-color: #fecccc;
+    border: 2px solid #CCCCCC;
+    padding: 5% 5% 5% 5%;
+    border-radius: 5px;
+}

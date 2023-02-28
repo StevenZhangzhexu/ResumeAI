@@ -19,12 +19,12 @@ scikit-learn = "*"
 plotly = "*"
 beautifulsoup4 = "*"
 iso3166 = "*"
-requests-html = "*"
 selenium = "*"
+pymongo = "*"
+python-dotenv = "*"
 
 [dev-packages]
 black = "*"
-ipykernel = "*"
 
 [requires]
 python_version = "3.9"
