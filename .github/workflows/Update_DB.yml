@@ -24,6 +24,6 @@ jobs:
         env:
           MONGO_URI: ${{ secrets.MONGODB_CONNECTION_URI }}
         run: |
-          pipenv run test2.py
+          pipenv run python test2.py
           #python DS_job_DB.py
     
