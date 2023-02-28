@@ -324,7 +324,7 @@ if ft=="Assess Qualification":
         nlp = selected_model
         # Add entity ruler to pipe
         if "entity_ruler" not in nlp.pipe_names:
-            skill_path = ".models/qualifications.jsonl"
+            skill_path = "models/qualifications.jsonl"
             ruler = nlp.add_pipe("entity_ruler",  config={"overwrite_ents": True})
             ruler.from_disk(skill_path)
 
@@ -496,7 +496,7 @@ if ft == "Recommend DS Jobs(fast)":
         nlp = selected_model
         # Add entity ruler to pipe
         if "entity_ruler" not in nlp.pipe_names:
-            skill_path = ".models/qualifications.jsonl"
+            skill_path = "models/qualifications.jsonl"
             ruler = nlp.add_pipe("entity_ruler",  config={"overwrite_ents": True})
             ruler.from_disk(skill_path)
         # Extract skills from CV 
@@ -531,7 +531,7 @@ if ft == "Recommend Jobs(slow)" and bt:
         nlp = selected_model
         # Add entity ruler to pipe
         if "entity_ruler" not in nlp.pipe_names:
-            skill_path = ".models/qualifications.jsonl"
+            skill_path = "models/qualifications.jsonl"
             ruler = nlp.add_pipe("entity_ruler",  config={"overwrite_ents": True})
             ruler.from_disk(skill_path)
         # Extract skills from CV 
