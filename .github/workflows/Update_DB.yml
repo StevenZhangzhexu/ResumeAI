@@ -2,7 +2,7 @@ name: Update DataBase
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 0 * * 1'
+    - cron: '0 0 * * *'
   
 jobs:
   update_db:
@@ -24,6 +24,5 @@ jobs:
         env:
           MONGO_URI: ${{ secrets.MONGODB_CONNECTION_URI }}
         run: |
-          pipenv run python test2.py
-          #python DS_job_DB.py
+          pipenv run python DS_job_DB.py
     
