@@ -1,0 +1,28 @@
+name: Update DataBase
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '50 16 * * 2'
+  
+jobs:
+  update_db:
+    name: Update MongoDB of App daily
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Install pipenv
+        run:  pipx install pipenv
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.9'
+          cache: 'pipenv'
+      - name: Install Dependencies
+        run: pipenv install --dev
+      - name: Run Script
+        env:
+          MONGO_URI: ${{ secrets.MONGODB_CONNECTION_URI }}
+        run: |
+          python DS_job_DB.py
+    
