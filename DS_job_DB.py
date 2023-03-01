@@ -2,6 +2,9 @@ from bs4 import BeautifulSoup
 import pandas as pd
 from tqdm import tqdm
 from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.chrome.options import Options 
+#from webdriver_manager.chrome import ChromeDriverManager
 from pymongo import MongoClient
 from datetime import datetime,timedelta
 import os
@@ -24,7 +27,9 @@ def get_job_urls(URL: str) -> list:
     '''
     Extracts job urls from the search result page given by URL
     '''
-    driver = webdriver.Chrome()
+    options = Options() 
+    options.add_argument("--headless=new")
+    driver = webdriver.Chrome("operadriver", options=options)
     driver.get(URL)
     html = driver.page_source
     soup = BeautifulSoup(html, "html.parser")
