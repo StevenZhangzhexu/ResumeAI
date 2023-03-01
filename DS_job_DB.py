@@ -56,8 +56,7 @@ def get_job_info(base_url, job_url, driver):
     try:
         job_info = job_info_main.find(
         'div', {"class": lambda x: x and x.startswith(
-            'jobsearch-CompanyInfoWithoutHeaderImage')}
-    )
+            'jobsearch-CompanyInfoWithoutHeaderImage')})
     except:
         job_info = ''
     try:
@@ -79,11 +78,13 @@ def get_job_info(base_url, job_url, driver):
             'ul', {'class': lambda x: x and x.startswith('css-1lyr5hv')}).find_all('li')]
     except AttributeError:
         salary_emp, salary_est = '', ''
-
-    job_description = job_info_main.find('div', {'id': 'jobDescriptionText'})
-    description = [d.text.lstrip().replace('\n',"").replace('\t',"")
+    try:
+        job_description = job_info_main.find('div', {'id': 'jobDescriptionText'})
+        description = [d.text.lstrip().replace('\n',"").replace('\t',"")
                    for d in job_description.find_all(['p', 'div'])]
-    description = ' '.join(description)
+        description = ' '.join(description)
+    except:
+        description = ''
 
     return (title, company, location, salary_est, description, job_url)
 
@@ -132,6 +133,7 @@ if __name__ == "__main__":
     # Scrape Indeed Job Postings
     df = search_indeed(driver)
     df = df.dropna(how='all')
+    df = df[df.description != '']
     df.reset_index(inplace=True)
     data_dict = df.to_dict("records")
 
