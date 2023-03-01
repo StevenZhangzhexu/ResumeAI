@@ -8,6 +8,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 from pymongo import MongoClient
 from datetime import datetime,timedelta
 import os
+import time
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -23,73 +24,80 @@ c_dict= {
   "Singapore": "https://sg.indeed.com",
   }
 
-def get_job_urls(URL, driver):
+def get_job_urls(URL: str) -> list:
     '''
     Extracts job urls from the search result page given by URL
     '''
+    # config for web scraping
+    options = Options() 
+    options.add_argument("--headless=new")
+    # Adding argument to disable the AutomationControlled flag 
+    options.add_argument("--disable-blink-features=AutomationControlled") 
+    # Exclude the collection of enable-automation switches 
+    options.add_experimental_option("excludeSwitches", ["enable-automation"]) 
+    # Turn-off userAutomationExtension 
+    options.add_experimental_option("useAutomationExtension", False) 
+    service=Service(ChromeDriverManager().install())
+    driver = webdriver.Chrome(service=service, options=options)
     driver.get(URL)
     html = driver.page_source
     soup = BeautifulSoup(html, "html.parser")
     job_urls = [a['href'] for a in soup.find_all(
         'a', {"id": lambda x: x and x.startswith('job_')})]
+    driver.quit()
     return job_urls
 
 
-def get_job_info(base_url, job_url, driver):
+def get_job_info(base_url: str, job_url: str) -> tuple:
     '''
     Extracts job info from the job URL (customized by country)
     '''
     job_url = base_url + job_url
+    # config for web scraping
+    options = Options() 
+    options.add_argument("--headless=new")
+    # Adding argument to disable the AutomationControlled flag 
+    options.add_argument("--disable-blink-features=AutomationControlled") 
+    # Exclude the collection of enable-automation switches 
+    options.add_experimental_option("excludeSwitches", ["enable-automation"]) 
+    # Turn-off userAutomationExtension 
+    options.add_experimental_option("useAutomationExtension", False) 
+    service=Service(ChromeDriverManager().install())
+    driver = webdriver.Chrome(service=service,options=options)
     driver.get(job_url)
     html = driver.page_source
     soup = BeautifulSoup(html, "html.parser")
 
-    try:
-        title = soup.find('h1').text
-    except:
-        title = ''
-    try:
-        job_info_main = soup.find(
+    title = soup.find('h1').text
+    job_info_main = soup.find(
         'div', {"class": lambda x: x and x.startswith('jobsearch')})
-    except:
-        job_info_main = ''
-    try:
-        job_info = job_info_main.find(
+    job_info = job_info_main.find(
         'div', {"class": lambda x: x and x.startswith(
-            'jobsearch-CompanyInfoWithoutHeaderImage')})
-    except:
-        job_info = ''
-    try:
-        company = job_info.find(
+            'jobsearch-CompanyInfoWithoutHeaderImage')}
+    )
+    company = job_info.find(
         'div', {'class': lambda x: x and x.startswith('icl-u')}).text
-    except:
-         company = ''
-    try:    
-        job = job_info.find_all(
+    job = job_info.find_all(
         'div', {'class': None})
-    except:    
-        job = ''
-    try:
-        location = [i.text for i in job][-1]
-    except:
-        location = ''
+    location = [i.text for i in job][-1]
+
     try:
         salary_emp, salary_est = [li.text for li in job_info_main.find(
             'ul', {'class': lambda x: x and x.startswith('css-1lyr5hv')}).find_all('li')]
     except AttributeError:
         salary_emp, salary_est = '', ''
-    try:
-        job_description = job_info_main.find('div', {'id': 'jobDescriptionText'})
-        description = [d.text.lstrip().replace('\n',"").replace('\t',"")
-                   for d in job_description.find_all(['p', 'div'])]
-        description = ' '.join(description)
-    except:
-        description = ''
 
+    job_description = job_info_main.find('div', {'id': 'jobDescriptionText'})
+    description = [d.text.lstrip().replace('\n',"").replace('\t',"")
+                   for d in job_description.find_all(['p', 'div'])]
+    description = ' '.join(description)
+
+    driver.execute_script('window.scrollTo(0, 700)')
+    driver.quit()
     return (title, company, location, salary_est, description, job_url)
 
 
-def search_indeed(driver):
+def search_indeed():
     '''
     Extracts data science related jobs info from countries
     '''
@@ -106,11 +114,13 @@ def search_indeed(driver):
 
     for key in c_dict:
         base_url = c_dict[key]
-        for i in range(0, 6*10, 10):
+        for i in range(0, 5*10, 10):
             URL = base_url +f'/jobs?q=data+science&start={i}'
-            job_urls = get_job_urls(URL,driver)
+            time.sleep(2)
+            job_urls = get_job_urls(URL)
+            print(URL)
             for job_url in tqdm(job_urls, total=len(job_urls)):
-                title, company, location, salary_est, description,link = get_job_info(base_url, job_url,driver)
+                title, company, location, salary_est, description,link = get_job_info(base_url, job_url)
                 data['title'].append(title)
                 data['company'].append(company)
                 data['description'].append(description)
@@ -124,15 +134,8 @@ def search_indeed(driver):
     return res
 
 if __name__ == "__main__":
-    # config for web scraping
-    options = Options() 
-    options.add_argument("--headless=new")
-    service=Service(ChromeDriverManager().install())
-    driver = webdriver.Chrome(service=service, options=options)
-
     # Scrape Indeed Job Postings
-    df = search_indeed(driver)
-    df = df.dropna(how='all')
+    df = search_indeed()
     df = df[df.description != '']
     df.reset_index(inplace=True)
     data_dict = df.to_dict("records")
