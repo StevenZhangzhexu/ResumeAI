@@ -22,6 +22,7 @@ iso3166 = "*"
 selenium = "*"
 pymongo = "*"
 python-dotenv = "*"
+webdriver-manager = "*"
 
 [dev-packages]
 black = "*"

@@ -4,7 +4,7 @@ from tqdm import tqdm
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options 
-#from webdriver_manager.chrome import ChromeDriverManager
+from webdriver_manager.chrome import ChromeDriverManager
 from pymongo import MongoClient
 from datetime import datetime,timedelta
 import os
@@ -23,13 +23,10 @@ c_dict= {
   "Singapore": "https://sg.indeed.com",
   }
 
-def get_job_urls(URL: str) -> list:
+def get_job_urls(URL, driver):
     '''
     Extracts job urls from the search result page given by URL
     '''
-    options = Options() 
-    options.add_argument("--headless=new")
-    driver = webdriver.Chrome("operadriver", options=options)
     driver.get(URL)
     html = driver.page_source
     soup = BeautifulSoup(html, "html.parser")
@@ -38,12 +35,11 @@ def get_job_urls(URL: str) -> list:
     return job_urls
 
 
-def get_job_info(base_url: str, job_url: str) -> tuple:
+def get_job_info(base_url, job_url, driver):
     '''
     Extracts job info from the job URL (customized by country)
     '''
     job_url = base_url + job_url
-    driver = webdriver.Chrome()
     driver.get(job_url)
     html = driver.page_source
     soup = BeautifulSoup(html, "html.parser")
@@ -75,7 +71,7 @@ def get_job_info(base_url: str, job_url: str) -> tuple:
     return (title, company, location, salary_est, description, job_url)
 
 
-def search_indeed():
+def search_indeed(driver):
     '''
     Extracts data science related jobs info from countries
     '''
@@ -94,9 +90,9 @@ def search_indeed():
         base_url = c_dict[key]
         for i in range(0, 6*10, 10):
             URL = base_url +f'/jobs?q=data+science&start={i}'
-            job_urls = get_job_urls(URL)
+            job_urls = get_job_urls(URL,driver)
             for job_url in tqdm(job_urls, total=len(job_urls)):
-                title, company, location, salary_est, description,link = get_job_info(base_url, job_url)
+                title, company, location, salary_est, description,link = get_job_info(base_url, job_url,driver)
                 data['title'].append(title)
                 data['company'].append(company)
                 data['description'].append(description)
@@ -110,8 +106,14 @@ def search_indeed():
     return res
 
 if __name__ == "__main__":
+    # config for web scraping
+    options = Options() 
+    options.add_argument("--headless=new")
+    service=Service(ChromeDriverManager().install())
+    driver = webdriver.Chrome(service=service, options=options)
+
     # Scrape Indeed Job Postings
-    df = search_indeed()
+    df = search_indeed(driver)
     df.reset_index(inplace=True)
     data_dict = df.to_dict("records")
 
