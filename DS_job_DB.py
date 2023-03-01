@@ -44,19 +44,36 @@ def get_job_info(base_url, job_url, driver):
     html = driver.page_source
     soup = BeautifulSoup(html, "html.parser")
 
-    title = soup.find('h1').text
-    job_info_main = soup.find(
+    try:
+        title = soup.find('h1').text
+    except:
+        title = ''
+    try:
+        job_info_main = soup.find(
         'div', {"class": lambda x: x and x.startswith('jobsearch')})
-    job_info = job_info_main.find(
+    except:
+        job_info_main = ''
+    try:
+        job_info = job_info_main.find(
         'div', {"class": lambda x: x and x.startswith(
             'jobsearch-CompanyInfoWithoutHeaderImage')}
     )
-    company = job_info.find(
+    except:
+        job_info = ''
+    try:
+        company = job_info.find(
         'div', {'class': lambda x: x and x.startswith('icl-u')}).text
-    job = job_info.find_all(
+    except:
+         company = ''
+    try:    
+        job = job_info.find_all(
         'div', {'class': None})
-    location = [i.text for i in job][-1]
-
+    except:    
+        job = ''
+    try:
+        location = [i.text for i in job][-1]
+    except:
+        location = ''
     try:
         salary_emp, salary_est = [li.text for li in job_info_main.find(
             'ul', {'class': lambda x: x and x.startswith('css-1lyr5hv')}).find_all('li')]
@@ -114,6 +131,7 @@ if __name__ == "__main__":
 
     # Scrape Indeed Job Postings
     df = search_indeed(driver)
+    df = df.dropna(how='all')
     df.reset_index(inplace=True)
     data_dict = df.to_dict("records")
 
