@@ -32,9 +32,9 @@ This repository contains:
 - [Install](#install)
 - [Usage](#usage)
 	- [Locally](#Locally)
-	- [On Cloud](#On Cloud)
+	- [On Cloud](#Cloud)
 - [Algorithm](#Algorithm)
-- [Data & Automation](#Data & Automation)
+- [Data & Automation](#Data&Automation)
 - [Example Readmes](#example-readmes)
 - [Related Efforts](#related-efforts)
 - [Maintainers](#maintainers)
@@ -112,12 +112,12 @@ I leveraged a fine-tuned **Spacy** model with a customized entity ruler for **en
 
 ### Matching Score
 
-$Match\_Score = 25 * Education\_Score  + \alpha * Text\_CosineSimilarity + (75-\alpha) * Skill\_Score$,
+$Match_Score = 25 * Education_Score  + \alpha * Text\_CosineSimilarity + (75-\alpha) * Skill\_Score$,
 
 where **Text_CosineSimilarity** =
-$\begin{equation}
+```math
 \cos ({\bf CV},{\bf JD})= {{\bf CV} {\bf JD} \over \|{\bf CV}\| \|{\bf JD}\|} = \frac{ \sum_{i=1}^{n}{{\bf CV}_i{\bf JD}_i} }{ \sqrt{\sum_{i=1}^{n}{({\bf CV}_i)^2}} \sqrt{\sum_{i=1}^{n}{({\bf JD}_i)^2}} }
-\end{equation}$
+```
 
 and $\alpha$ is adjusted according to the difference in text size between the resume and job description.
 
