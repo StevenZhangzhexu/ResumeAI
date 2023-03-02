@@ -7,15 +7,15 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options 
 from webdriver_manager.chrome import ChromeDriverManager
 
+options = Options() 
+options.add_argument("--headless=new")
+options.add_experimental_option("useAutomationExtension", False) 
+service=Service(ChromeDriverManager().install())
+
 def get_job_urls(URL: str) -> list:
     '''
     Extracts job urls from the search result page given by URL
     '''
-    options = Options() 
-    options.add_argument("--headless=new")
-    options.add_argument('--disable-gpu')
-    options.add_argument('--headless')
-    service=Service(ChromeDriverManager().install())
     driver = webdriver.Chrome(service=service, options=options)
     driver.get(URL)
     html = driver.page_source
@@ -31,12 +31,6 @@ def get_job_info(country_code: str, job_url: str) -> tuple:
     Extracts job info from the job URL (customized by country)
     '''
     job_url = f'https://{country_code}.indeed.com'+job_url
-    options = Options() 
-    options.add_argument("--headless=new")
-    options.add_argument('--disable-gpu')
-    options.add_argument('--headless')
-    options.add_experimental_option("useAutomationExtension", False) 
-    service=Service(ChromeDriverManager().install())
     driver = webdriver.Chrome(service=service, options=options)
     driver.get(job_url)
     html = driver.page_source
@@ -65,7 +59,6 @@ def get_job_info(country_code: str, job_url: str) -> tuple:
     description = [d.text.lstrip().replace('\n',"").replace('\t',"")
                    for d in job_description.find_all(['p', 'div'])]
     description = ' '.join(description)
-
     driver.quit()
     return (title, company, location, salary_est, description, job_url)
 

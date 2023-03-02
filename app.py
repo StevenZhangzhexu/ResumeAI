@@ -547,13 +547,16 @@ if ft == "Recommend Jobs(slow)" and bt:
         d1 = pd.DataFrame(y1.items(), columns=['Skills','Your YoE'])
 
         df = js.search_indeed(job_title = title, country = country, num_pages = pages)
-        df['match_score'] = df.apply(lambda x: score(text_input, skills, d1, x['description']), 
-                        axis=1)
+        if len(df)<1:
+            st.dataframe(df)
+        else:
+            df['match_score'] = df.apply(lambda x: score(text_input, skills, d1, x['description']), 
+                            axis=1)
 
-        st.subheader("**Full list**")
-        st.dataframe(df)
-        st.subheader("**Recommendation list**")
-        st.dataframe(df[df['match_score']>50])
+            st.subheader("**Full list**")
+            st.dataframe(df)
+            st.subheader("**Recommendation list**")
+            st.dataframe(df[df['match_score']>50])
     else:
         with open('./static/notification.css') as f:
             st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)

@@ -87,7 +87,7 @@ cover/
 
 
 # Streamlit
-.streamlit/
+.streamlit/secret.toml
 
 # Scrapy stuff:
 .scrapy
