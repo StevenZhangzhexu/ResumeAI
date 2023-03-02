@@ -18,15 +18,12 @@ Welcome to ResumeAI! This application employs a Spacy model to analyze a CV and 
 
 This repository contains:
 
-1. [The README](/readme.md) for details of the app and a link to [the app ](https://resumeai.streamlit.app/).
+1. The [README](/readme.md) for details of the app and a link to [the app ](https://resumeai.streamlit.app/).
 2. [.streamlit](/.streamlit) and [static](/static) folders for the layout and style of the app.
-3. A link to [a generator](https://github.com/RichardLitt/generator-standard-readme) you can use to create standard READMEs.
-4. [A badge](#badge) to point to this spec.
-5. [Examples of standard READMEs](example-readmes/) - such as this file you are reading.
-
-maintained ([work in progress](https://github.com/RichardLitt/standard-readme/issues/5)).
-
-Standard Readme is designed for open source libraries. Although it’s [historically](#background) made for Node and npm projects, it also applies to libraries in other languages and package managers.
+3. A [models](/models) folder for Spacy model and a [.json](models/qualifications.jsonl) file for the cutomized entity ruler.
+4. A [.github/workflows](.github/workflows) to use CI/CD pipline - a [Git Action](Update_DB.yml) to automatically run [script](/DS_job_DB.py) to scrape and store data to MongoDB on a daily basis.
+5. [Pipfile](/Pipfile) - the requirements for the repo in the virtual environment.
+6. The main [script](/app.py) of the App.
 
 
 ## Table of Contents
@@ -47,23 +44,12 @@ Standard Readme is designed for open source libraries. Although it’s [historic
 
 As a job seeker, you may find the job application process to be lengthy and tedious, which usually involves manually reviewing and updating your CV, carefully scanning job requirements for positions you're interested in, and determining if you're a good fit for the role. Sometimes, you may need to craft a tailored Cover Letter for a specific position. I understand that this process can be overwhelming. Therefore I have developed this app ResumeAI to make the process as seamless and stress-free as possible!
 
+The goals for this App are:
 
-
-> Remember: the documentation, not the code, defines what a module does.
-
-~ [Ken Williams, Perl Hackers](http://mathforum.org/ken/perl_modules.html#document)
-
-Writing READMEs is way too hard, and keeping them maintained is difficult. By offloading this process - making writing easier, making editing easier, making it clear whether or not an edit is up to spec or not - you can spend less time worrying about whether or not your initial documentation is good, and spend more time writing and using code.
-
-By having a standard, users can spend less time searching for the information they want. They can also build tools to gather search terms from descriptions, to automatically run example code, to check licensing, and so on.
-
-The goals for this repository are:
-
-1. A well defined **specification**. This can be found in the [Spec document](spec.md). It is a constant work in progress; please open issues to discuss changes.
-2. **An example README**. This Readme is fully standard-readme compliant, and there are more examples in the `example-readmes` folder.
-3. A **linter** that can be used to look at errors in a given Readme. Please refer to the [tracking issue](https://github.com/RichardLitt/standard-readme/issues/5).
-4. A **generator** that can be used to quickly scaffold out new READMEs. See [generator-standard-readme](https://github.com/RichardLitt/generator-standard-readme).
-5. A **compliant badge** for users. See [the badge](#badge).
+1. Give advises on your resume writing using STAR (situation, task, action, result) principle. (The STAR principle is an effective way to structure your resume bullet points to showcase your accomplishments and highlight your skills. )
+2. Evaluate whether you are a good fit for a particular job posting.
+3. Create a cover letter that aligns with your CV and the job description.
+4. Provide recommendations for current, relevant job opportunities that match your qualifications.
 
 ## Install
 
@@ -122,21 +108,23 @@ To use the web app, please go to [ResumeAI](https://resumeai.streamlit.app/).
 ## Algorithm
 
 ### NLP
+I leveraged a fine-tuned **Spacy** model with a customized entity ruler for **entity detection**. For **cosine similarity** computation, I used the **CountVectorizer**. In addition, I applied the **GPT-3 Davinci model** to generate cover letters based on users' CVs.
+
 ### Matching Score
 
->$Match\_Score = 25 * Education\_Score  + \alpha * Text\_CosineSimilarity + (75-\alpha) * Skill\_Score$,
+$Match\_Score = 25 * Education\_Score  + \alpha * Text\_CosineSimilarity + (75-\alpha) * Skill\_Score$,
 
 where **Text_CosineSimilarity** =
-**$\begin{equation}
+$\begin{equation}
 \cos ({\bf CV},{\bf JD})= {{\bf CV} {\bf JD} \over \|{\bf CV}\| \|{\bf JD}\|} = \frac{ \sum_{i=1}^{n}{{\bf CV}_i{\bf JD}_i} }{ \sqrt{\sum_{i=1}^{n}{({\bf CV}_i)^2}} \sqrt{\sum_{i=1}^{n}{({\bf JD}_i)^2}} }
-\end{equation}$**
+\end{equation}$
 
 and $\alpha$ is adjusted according to the difference in text size between the resume and job description.
 
 ## Data & Automation
+The GitHub action is used to automate web scraping and data updates in MongoDB Atlas on a daily basis. (The policy is to remove historical data that is more than one month old.) The app retrieves data from MongoDB to provide quick recommendations.
 
 
-```
 
 
 
