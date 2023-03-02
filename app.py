@@ -432,8 +432,11 @@ if ft=="Assess Qualification":
         fig, ax = plt.subplots()
         ax.xaxis.set_major_locator(MaxNLocator(integer=True))
         fig.set_size_inches(8, 17)
-        df.plot.barh(ax=ax, color={'YoE Required by The Postition': "forestgreen", 'Your YoE':"lightsalmon"})
-        st.pyplot(fig)
+        try:
+            df.plot.barh(ax=ax, color={'YoE Required by The Postition': "forestgreen", 'Your YoE':"lightsalmon"})
+            st.pyplot(fig)
+        except:
+            st.markdown("no skills")
 
 
 if ft == "Generate Cover Letter":
