@@ -3,17 +3,30 @@ import pandas as pd
 from tqdm import tqdm
 import iso3166
 from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.chrome.options import Options 
+from webdriver_manager.chrome import ChromeDriverManager
 
 def get_job_urls(URL: str) -> list:
     '''
     Extracts job urls from the search result page given by URL
     '''
-    driver = webdriver.Chrome()
+    options = Options() 
+    options.add_argument("--headless=new")
+    # Adding argument to disable the AutomationControlled flag 
+    options.add_argument("--disable-blink-features=AutomationControlled") 
+    # Exclude the collection of enable-automation switches 
+    options.add_experimental_option("excludeSwitches", ["enable-automation"]) 
+    # Turn-off userAutomationExtension 
+    options.add_experimental_option("useAutomationExtension", False) 
+    service=Service(ChromeDriverManager().install())
+    driver = webdriver.Chrome(service=service, options=options)
     driver.get(URL)
     html = driver.page_source
     soup = BeautifulSoup(html, "html.parser")
     job_urls = [a['href'] for a in soup.find_all(
         'a', {"id": lambda x: x and x.startswith('job_')})]
+    driver.quit()
     return job_urls
 
 
@@ -22,7 +35,16 @@ def get_job_info(country_code: str, job_url: str) -> tuple:
     Extracts job info from the job URL (customized by country)
     '''
     job_url = f'https://{country_code}.indeed.com'+job_url
-    driver = webdriver.Chrome()
+    options = Options() 
+    options.add_argument("--headless=new")
+    # Adding argument to disable the AutomationControlled flag 
+    options.add_argument("--disable-blink-features=AutomationControlled") 
+    # Exclude the collection of enable-automation switches 
+    options.add_experimental_option("excludeSwitches", ["enable-automation"]) 
+    # Turn-off userAutomationExtension 
+    options.add_experimental_option("useAutomationExtension", False) 
+    service=Service(ChromeDriverManager().install())
+    driver = webdriver.Chrome(service=service, options=options)
     driver.get(job_url)
     html = driver.page_source
     soup = BeautifulSoup(html, "html.parser")
@@ -51,6 +73,7 @@ def get_job_info(country_code: str, job_url: str) -> tuple:
                    for d in job_description.find_all(['p', 'div'])]
     description = ' '.join(description)
 
+    driver.quit()
     return (title, company, location, salary_est, description, job_url)
 
 
@@ -89,5 +112,4 @@ def search_indeed(country, city='', job_title='', num_pages=1):
             data['link'].append(link)
 
     res = pd.DataFrame(data)
-    print(res)
     return res

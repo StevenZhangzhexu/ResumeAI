@@ -137,7 +137,7 @@ def parse_time(doc,tokens):
         try:
             ret = str(parse(doc[i].text))
             year = int(ret[:4])
-            if (year < 1950 or year > 2023) and doc[i].shape_=='dddd':
+            if (year < 1950 or year > date.today().year) and doc[i].shape_=='dddd':
                 res_token[i] = " " + doc[i].text + " "
             elif doc[i].shape_ == 'dddd' and '+' in [doc[i-1].text[0], doc[i-2].text[0]]:
                 res_token[i] = " " + doc[i].text + " "
