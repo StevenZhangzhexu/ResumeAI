@@ -8,11 +8,9 @@
 ![database-MongoDB-brightgreen](https://img.shields.io/badge/database-MongoDB-brightgreen)
 ![cloud--app-streamlit-red](https://img.shields.io/badge/cloud--app-streamlit-red)
 
+![logo](/static/logo.png)
 
 Welcome to ResumeAI! This application employs a Spacy model to analyze a CV and generates a cover letter based on the CV and job description, using a fine-tuned [Davinci model](https://beta.openai.com/docs/models/overview) based on OpenAI's GPT-3. Furthermore, it leverages web scraping and a matching algorithm to suggest suitable job positions that align with the individual's CV.
-
-
-
 
 
 
@@ -35,9 +33,6 @@ This repository contains:
 	- [On Cloud](#Cloud)
 - [Algorithm](#Algorithm)
 - [Data & Automation](#Data&Automation)
-- [Example Readmes](#example-readmes)
-- [Related Efforts](#related-efforts)
-- [Maintainers](#maintainers)
 - [License](#license)
 
 ## Background
@@ -112,11 +107,11 @@ I leveraged a fine-tuned **Spacy** model with a customized entity ruler for **en
 
 ### Matching Score
 
-$Match_Score = 25 * Education_Score  + \alpha * Text\_CosineSimilarity + (75-\alpha) * Skill\_Score$,
+$Match Score = 25 * Education Score  + \alpha * Text CosineSimilarity + (75-\alpha) * Skill Score$,
 
 where **Text_CosineSimilarity** =
 ```math
-\cos ({\bf CV},{\bf JD})= {{\bf CV} {\bf JD} \over \|{\bf CV}\| \|{\bf JD}\|} = \frac{ \sum_{i=1}^{n}{{\bf CV}_i{\bf JD}_i} }{ \sqrt{\sum_{i=1}^{n}{({\bf CV}_i)^2}} \sqrt{\sum_{i=1}^{n}{({\bf JD}_i)^2}} }
+\COS ({\bf CV},{\bf JD})= {{\bf CV} {\bf JD} \over \|{\bf CV}\| \|{\bf JD}\|} = \frac{ \sum_{i=1}^{n}{{\bf CV}_i{\bf JD}_i} }{ \sqrt{\sum_{i=1}^{n}{({\bf CV}_i)^2}} \sqrt{\sum_{i=1}^{n}{({\bf JD}_i)^2}} }
 ```
 
 and $\alpha$ is adjusted according to the difference in text size between the resume and job description.
@@ -126,7 +121,9 @@ The GitHub action is used to automate web scraping and data updates in MongoDB A
 
 
 
-
+## Contributions
+Possible future functions to add to this app include enabling it to support more languages, such as Chinese, and expanding the database storage to provide recommendations for a wider range of job types beyond just data science.
+If you would like to contribute to this project, please fork and submit a pull request. I am always open to feedback and would love to help with this project.
 
 
 
