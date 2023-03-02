@@ -13,12 +13,8 @@ def get_job_urls(URL: str) -> list:
     '''
     options = Options() 
     options.add_argument("--headless=new")
-    # Adding argument to disable the AutomationControlled flag 
-    options.add_argument("--disable-blink-features=AutomationControlled") 
-    # Exclude the collection of enable-automation switches 
-    options.add_experimental_option("excludeSwitches", ["enable-automation"]) 
-    # Turn-off userAutomationExtension 
-    options.add_experimental_option("useAutomationExtension", False) 
+    options.add_argument('--disable-gpu')
+    options.add_argument('--headless')
     service=Service(ChromeDriverManager().install())
     driver = webdriver.Chrome(service=service, options=options)
     driver.get(URL)
@@ -37,11 +33,8 @@ def get_job_info(country_code: str, job_url: str) -> tuple:
     job_url = f'https://{country_code}.indeed.com'+job_url
     options = Options() 
     options.add_argument("--headless=new")
-    # Adding argument to disable the AutomationControlled flag 
-    options.add_argument("--disable-blink-features=AutomationControlled") 
-    # Exclude the collection of enable-automation switches 
-    options.add_experimental_option("excludeSwitches", ["enable-automation"]) 
-    # Turn-off userAutomationExtension 
+    options.add_argument('--disable-gpu')
+    options.add_argument('--headless')
     options.add_experimental_option("useAutomationExtension", False) 
     service=Service(ChromeDriverManager().install())
     driver = webdriver.Chrome(service=service, options=options)
