@@ -17,11 +17,11 @@ c_dict= {
 #   "Australia": "https://au.indeed.com",
 #   "Canada": "https://ca.indeed.com",
 #   "Ireland": "https://ie.indeed.com",
-  "Hong Kong": "https://hk.indeed.com",
 #   "New Zealand": "https://ca.indeed.com",
 #   "United Kingdom": "https://uk.indeed.com", 
   "United States of America": "https://indeed.com",
   "Singapore": "https://sg.indeed.com",
+  "Hong Kong": "https://hk.indeed.com",
   }
 
 def get_job_urls(URL: str) -> list:
@@ -114,13 +114,14 @@ def search_indeed():
 
     for key in c_dict:
         base_url = c_dict[key]
-        for i in range(0, 5*10, 10):
+        for i in range(0, 3*10+1, 10):
             URL = base_url +f'/jobs?q=data+science&start={i}'
             time.sleep(2)
             job_urls = get_job_urls(URL)
             print(URL)
             for job_url in tqdm(job_urls, total=len(job_urls)):
                 title, company, location, salary_est, description,link = get_job_info(base_url, job_url)
+                time.sleep(1.5)
                 data['title'].append(title)
                 data['company'].append(company)
                 data['description'].append(description)
