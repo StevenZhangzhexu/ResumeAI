@@ -16,7 +16,7 @@ Welcome to ResumeAI! This application employs a Spacy model to analyze a CV and 
 
 This repository contains:
 
-1. The [README](/readme.md) for details of the app and a link to [the app ](https://resumeai.streamlit.app/).
+1. The [README](/README.md) for details of the app and a link to [the app ](https://resumeai.streamlit.app/).
 2. [.streamlit](/.streamlit) and [static](/static) folders for the layout and style of the app.
 3. A [models](/models) folder for Spacy model and a [.json](models/qualifications.jsonl) file for the cutomized entity ruler.
 4. A [.github/workflows](.github/workflows) to use CI/CD pipline - a [Git Action](Update_DB.yml) to automatically run [script](/DS_job_DB.py) to scrape and store data to MongoDB on a daily basis.
@@ -41,7 +41,7 @@ As a job seeker, you may find the job application process to be lengthy and tedi
 
 The goals for this App are:
 
-1. Give advises on your resume writing using STAR (situation, task, action, result) principle. (The STAR principle is an effective way to structure your resume bullet points to showcase your accomplishments and highlight your skills. )
+1. Give advise on your resume writing using STAR (situation, task, action, result) principle. (The STAR principle is an effective way to structure your resume bullet points to showcase your accomplishments and highlight your skills. )
 2. Evaluate whether you are a good fit for a particular job posting.
 3. Create a cover letter that aligns with your CV and the job description.
 4. Provide recommendations for current, relevant job opportunities that match your qualifications.
@@ -111,7 +111,7 @@ $Match Score = 25 * Education Score  + \alpha * Text CosineSimilarity + (75-\alp
 
 where **Text_CosineSimilarity** =
 ```math
-\COS ({\bf CV},{\bf JD})= {{\bf CV} {\bf JD} \over \|{\bf CV}\| \|{\bf JD}\|} = \frac{ \sum_{i=1}^{n}{{\bf CV}_i{\bf JD}_i} }{ \sqrt{\sum_{i=1}^{n}{({\bf CV}_i)^2}} \sqrt{\sum_{i=1}^{n}{({\bf JD}_i)^2}} }
+\cos ({\bf CV},{\bf JD})= {{\bf CV} {\bf JD} \over \|{\bf CV}\| \|{\bf JD}\|} = \frac{ \sum_{i=1}^{n}{{\bf CV}_i{\bf JD}_i} }{ \sqrt{\sum_{i=1}^{n}{({\bf CV}_i)^2}} \sqrt{\sum_{i=1}^{n}{({\bf JD}_i)^2}} }
 ```
 
 and $\alpha$ is adjusted according to the difference in text size between the resume and job description.

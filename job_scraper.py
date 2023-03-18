@@ -46,7 +46,7 @@ def get_job_info(country_code: str, job_url: str) -> tuple:
             'jobsearch-CompanyInfoWithoutHeaderImage')}
     )
     company = job_info.find(
-        'div', {'class': lambda x: x and x.startswith('icl-u')}).text
+        'div', {'data-company-name': lambda x: x and x=="true"}).text
     job = job_info.find_all(
         'div', {'class': None})
     location = [i.text for i in job][-1]

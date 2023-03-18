@@ -470,7 +470,7 @@ def score(text_input, skills, d1, text_JD ):
     skills_JD, tokens_JD = extract_qualif(doc_JD,1)
     # Extract education level
     edu_jd = extract_qualif.edu
-    res_J, res_token_J = parse_time(doc_JD, tokens_JD)
+    res_J, _ = parse_time(doc_JD, tokens_JD)
     doc2 = nlp(res_J)
 
     if len(text_input) > 5 *len(text_JD):
@@ -516,7 +516,7 @@ if ft == "Recommend DS Jobs(fast)":
         # Get data from MongoDB
         client = init_connection()
         df = get_data()
-        df = df[df['country']==country].drop_duplicates()
+        df = df[df['country']==country].drop_duplicates(subset=df.columns.difference(['s_date']))
         df['match_score'] = df.apply(lambda x: score(text_input, skills, d1, x['description']), axis=1)
         df = df[['title','company','location','description','link','country','s_date','match_score']].reset_index()
         st.subheader("**Full list**")
